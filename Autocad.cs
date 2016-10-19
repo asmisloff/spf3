@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Autodesk.AutoCAD.DatabaseServices;
 using Autodesk.AutoCAD.ApplicationServices;
 using Autodesk.AutoCAD.EditorInput;
@@ -58,5 +59,9 @@ namespace spf3
             return ent.Handle;
         }
 
+        public static Record GetContent(BlockReference bref, List<BlockReference> innerBlocks)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
