@@ -2,6 +2,18 @@
 {
     class Record
     {
+        public Record()
+        {
+            Header = DEFAULT_HEADER;
+            Art = "";
+            Name = "";
+            Th = 0;
+            Len = 0;
+            Wi = 0;
+            Note = "";
+            Qty = "1";
+        }
+
         public Record(string header, string art, string name, int th, int len, int wi, string note, string qty)
         {
             Header = header;
@@ -52,5 +64,7 @@
         public int Wi { get; set; }
         public string Note { get; set; }
         public string Qty { get; set; }
+
+        const string DEFAULT_HEADER = "Элементы коснтрукции";
     }
 }
