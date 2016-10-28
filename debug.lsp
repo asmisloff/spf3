@@ -1,0 +1,1 @@
+(command "netload" "f:/project/AutoCAD/spf3/bin/Debug/spf3.dll")

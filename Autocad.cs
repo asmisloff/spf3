@@ -14,6 +14,11 @@ namespace spf3
 
         static Autocad()
         {
+            Init();
+        }
+
+        public static void Init()
+        {
             activeDoc = Application.DocumentManager.MdiActiveDocument;
             activeDB = activeDoc.Database;
             Ed = activeDoc.Editor;
@@ -59,9 +64,57 @@ namespace spf3
             return ent.Handle;
         }
 
-        public static Record GetContent(BlockReference bref, List<BlockReference> innerBlocks)
+        /// <summary>
+        /// Extract attributes from BlockReference.
+        /// </summary>
+        /// <param name="bref">BlockReference for data extraction</param>
+        /// <param name="innerBlocks">
+        /// List of BlockReferences incapsulated in bref.
+        /// Can be used by upper-level code for recursively walking throw bref.</param>
+        /// <returns></returns>
+        public static Record GetContent(BlockReference bref, List<BlockReference> innerBlocks = null)
         {
-            throw new NotImplementedException();
+            Record res = new Record();
+            using (Transaction tr = activeDB.TransactionManager.StartTransaction()) {
+                ObjectId btrId = bref.BlockTableRecord;
+                BlockTableRecord rec = tr.GetObject(btrId, OpenMode.ForRead) as BlockTableRecord;
+                AttributeCollection attCol;
+
+                foreach (ObjectId id in rec) {
+                    DBObject ob = tr.GetObject(id, OpenMode.ForRead);
+                    Type obTp = ob.GetType();
+                    if (obTp == typeof(AttributeDefinition)) {
+                        AttributeDefinition adef = (AttributeDefinition)ob;
+                        if (/*adef.Tag.ToLower() != "qty" && */adef.TextString != "") {
+                            res[adef.Tag] = adef.TextString;
+                        }
+                        else {
+                            res[adef.Tag] = Record.Default(adef.Tag);
+                        }
+                    }
+                    if (obTp == typeof(BlockReference) && innerBlocks != null) {
+                        innerBlocks.Add((BlockReference)ob);
+                    }
+                }
+
+                attCol = bref.AttributeCollection;
+                foreach (ObjectId id in attCol) {
+                    AttributeReference aref = tr.GetObject(id, OpenMode.ForRead) as AttributeReference;
+                    if (aref.TextString != "") {
+                        res[aref.Tag] = aref.TextString;
+                    }
+                    else {
+                        res[aref.Tag] = Record.Default(aref.Tag);
+                    }
+                }
+            }
+            res["block_name"] = bref.Name;
+            return res.Update();
+        }
+
+        public static Table MakeTable()
+        {
+            return new Table();
         }
     }
 }
