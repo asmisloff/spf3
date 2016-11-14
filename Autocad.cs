@@ -1,8 +1,12 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using Autodesk.AutoCAD.DatabaseServices;
 using Autodesk.AutoCAD.ApplicationServices;
 using Autodesk.AutoCAD.EditorInput;
+using Autodesk.AutoCAD.Geometry;
+using Autodesk.AutoCAD.Interop;
+using Autodesk.AutoCAD.Interop.Common;
 
 namespace spf3
 {
@@ -49,6 +53,39 @@ namespace spf3
                 tr.Commit();
                 tr.Dispose();
             }
+        }
+
+        public static string GetBoundingBox(Entity ent)
+        {
+            using (Transaction tr = activeDB.TransactionManager.StartTransaction()) {
+                var btr = tr.GetObject(ent.Id, OpenMode.ForWrite);
+                var bref = (ent as BlockReference);
+                if (bref != null) {
+                    var normal = bref.Normal;
+                    Ed.WriteMessage(normal.ToString());
+                    var M = Matrix3d.PlaneToWorld(normal);
+                    var copy = bref.GetTransformedCopy(M.Inverse()) as BlockReference;
+                    var n2 = copy.Normal;
+                    Ed.WriteMessage("\n" + n2.ToString());
+                    var extents = copy.GeometryExtentsBestFit();
+                    var max = extents.MaxPoint.ToArray();
+                    var min = extents.MinPoint.ToArray();
+                    var dims = new double[3];
+                    for (int i = 0; i < 3; i++) {
+                        dims[i] = max[i] - min[i];
+                    }
+                    var sortedDims = dims.OrderBy(x => x).Reverse().ToArray();
+                    Func<double, double> round = x => Math.Round(x, MidpointRounding.AwayFromZero);
+                    if (dims[2] == sortedDims[2]) {
+                        return String.Format("{0}x{1}x{2}", round(dims[2]), round(dims[0]), round(dims[1]));
+                    }
+                    else {
+                        return String.Format("{0}x{1}x{2}", round(sortedDims[2]), round(sortedDims[0]), round(sortedDims[1]));
+                    }
+                }
+                tr.Commit();
+            }
+            return "";
         }
 
         public static Handle AppendToPaperSpace(Entity ent)
@@ -109,6 +146,9 @@ namespace spf3
                 }
             }
             res["block_name"] = bref.Name;
+            if (res["header"] == "элементы конструкции") {
+                res["dim"] = GetBoundingBox(bref);
+            }
             return res.Update();
         }
 

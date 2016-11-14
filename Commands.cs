@@ -96,5 +96,12 @@ namespace spf3
             report.Save();
             Ed.WriteMessage("OK");
         }
+
+    [CommandMethod("bbox")]
+    public static void BBox()
+    {
+        SSForeach<Entity>(SSGet(),
+            ent => Ed.WriteMessage(GetBoundingBox(ent)));
+    }
     }
 }
