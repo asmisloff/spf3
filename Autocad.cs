@@ -62,11 +62,8 @@ namespace spf3
                 var bref = (ent as BlockReference);
                 if (bref != null) {
                     var normal = bref.Normal;
-                    Ed.WriteMessage(normal.ToString());
                     var M = Matrix3d.PlaneToWorld(normal);
                     var copy = bref.GetTransformedCopy(M.Inverse()) as BlockReference;
-                    var n2 = copy.Normal;
-                    Ed.WriteMessage("\n" + n2.ToString());
                     var extents = copy.GeometryExtentsBestFit();
                     var max = extents.MaxPoint.ToArray();
                     var min = extents.MinPoint.ToArray();

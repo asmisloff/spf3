@@ -103,7 +103,7 @@ namespace spf3
             for (int i = 0; i < cnt; i++) {
                 var tag = tags[i];
                 var token = tokens[i];
-                if (this[tag] == "") {
+                if (this[tag] == "" || tag == "qty") {
                     this[tag] = token;
                 }
             }
