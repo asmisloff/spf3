@@ -20,7 +20,7 @@ namespace spf3
             ProcessBref = (bref) => {
                 List<BlockReference> innerBlocks = new List<BlockReference>();
                 Record r = GetContent(bref, innerBlocks);
-                if (!r["block_name"].StringValue.StartsWith("_")) {
+                if (!r["block_name"].StringValue.StartsWith("_") && !r["art"].StringValue.StartsWith("REF")) {
                     spec.Add(r);
                 }
                 foreach (BlockReference b in innerBlocks) {
@@ -51,7 +51,7 @@ namespace spf3
             ProcessBref = (bref) => {
                 List<BlockReference> innerBlocks = new List<BlockReference>();
                 Record r = GetContent(bref, innerBlocks);
-                if (!r["block_name"].StringValue.StartsWith("_")) {
+                if (!r["block_name"].StringValue.StartsWith("_") && !r["art"].StringValue.StartsWith("REF")) {
                     spec.Add(r);
                 }
                 foreach (BlockReference b in innerBlocks) {
@@ -60,7 +60,7 @@ namespace spf3
             };
 
             SSForeach<BlockReference>(sset, ProcessBref);
-            
+
             var report = new CsvReport(spec);
             report.Save();
             Ed.WriteMessage("OK");
@@ -97,11 +97,11 @@ namespace spf3
             Ed.WriteMessage("OK");
         }
 
-    [CommandMethod("bbox")]
-    public static void BBox()
-    {
-        SSForeach<Entity>(SSGet(),
-            ent => Ed.WriteMessage(GetBoundingBox(ent)));
-    }
+        [CommandMethod("bbox")]
+        public static void BBox()
+        {
+            SSForeach<Entity>(SSGet(),
+                ent => Ed.WriteMessage(GetBoundingBox(ent)));
+        }
     }
 }

@@ -61,23 +61,28 @@ namespace spf3
                 var btr = tr.GetObject(ent.Id, OpenMode.ForWrite);
                 var bref = (ent as BlockReference);
                 if (bref != null) {
-                    var normal = bref.Normal;
-                    var M = Matrix3d.PlaneToWorld(normal);
-                    var copy = bref.GetTransformedCopy(M.Inverse()) as BlockReference;
-                    var extents = copy.GeometryExtentsBestFit();
-                    var max = extents.MaxPoint.ToArray();
-                    var min = extents.MinPoint.ToArray();
-                    var dims = new double[3];
-                    for (int i = 0; i < 3; i++) {
-                        dims[i] = max[i] - min[i];
+                    if (bref.Name.StartsWith("*")) {
+                        Ed.WriteMessage(bref.Name);
+                        return "";
                     }
-                    var sortedDims = dims.OrderBy(x => x).Reverse().ToArray();
-                    Func<double, double> round = x => Math.Round(x, MidpointRounding.AwayFromZero);
-                    if (dims[2] == sortedDims[2]) {
-                        return String.Format("{0}x{1}x{2}", round(dims[2]), round(dims[0]), round(dims[1]));
-                    }
-                    else {
-                        return String.Format("{0}x{1}x{2}", round(sortedDims[2]), round(sortedDims[0]), round(sortedDims[1]));
+                    var copy = bref.GetTransformedCopy(bref.BlockTransform.Inverse()) as BlockReference;
+                    copy.Rotation = 0;
+                    var extents = (copy as Entity).Bounds;
+                    if (extents.HasValue) {
+                        var max = extents.Value.MaxPoint.ToArray();
+                        var min = extents.Value.MinPoint.ToArray();
+                        var dims = new double[3];
+                        for (int i = 0; i < 3; i++) {
+                            dims[i] = max[i] - min[i];
+                        }
+                        var sortedDims = dims.OrderBy(x => x).Reverse().ToArray();
+                        Func<double, double> round = x => Math.Round(x, MidpointRounding.AwayFromZero);
+                        if (dims[2] == sortedDims[2]) {
+                            return String.Format("{0}x{1}x{2}", round(dims[2]), round(dims[0]), round(dims[1]));
+                        }
+                        else {
+                            return String.Format("{0}x{1}x{2}", round(sortedDims[2]), round(sortedDims[0]), round(sortedDims[1]));
+                        }
                     }
                 }
                 tr.Commit();
