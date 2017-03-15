@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using static System.Math;
 
 namespace spf3
@@ -94,9 +95,18 @@ namespace spf3
             return "";
         }
 
+        string TrimDollarSymbol(string s) {
+            for (int i = 0; i < s.Length; i++) {
+                if (s[i] != '$') {
+                    return s.Substring(i);
+                }
+            }
+            return "";
+        }
+
         void ParseBlockName()
         {
-            string block_name = Trim__(this["block_name"].StringValue);
+            string block_name = TrimDollarSymbol(Trim__(this["block_name"].StringValue));
             var tokens = block_name.Split('_');
             var tags = new string[] { "art", "name", "dim", "note", "qty" };
             int cnt = Min(tokens.Length, tags.Length);
@@ -176,10 +186,24 @@ namespace spf3
             var tags = new string[] { "header", "art", "name", "dim", "note" };
             string thisKey = RangeOfHeader(this["header"]).ToString();
             string rKey = RangeOfHeader(r["header"]).ToString();
-            foreach (var tag in tags) {
+            thisKey += String.Join("_", tags.Select(tag => {
+                var field = this[tag].StringValue;
+                if (tag == "art" && field == "") {
+                    field = "Я";
+                }
+                return field;
+                }));
+            rKey += String.Join("_", tags.Select(tag => {
+                var field = r[tag].StringValue;
+                if (tag == "art" && field == "") {
+                    field = "Я";
+                }
+                return field;
+            }));
+            /*foreach (var tag in tags) {
                 thisKey += this[tag].StringValue.ToLower();
                 rKey += r[tag].StringValue.ToLower();
-            }
+            }*/
             return thisKey.CompareTo(rKey);
         }
 
