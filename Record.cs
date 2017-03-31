@@ -63,6 +63,9 @@ namespace spf3
             if (!this.ContainsKey("dim")) {
                 this.Add("dim", "");
             }
+            if (this["block_name"].StringValue.StartsWith("$")) {
+                ParseBlockName();
+            }
             if (this["dim"] == "") {
                 fill_dim();
             }
