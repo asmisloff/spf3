@@ -81,6 +81,9 @@ namespace spf3
                             return String.Format("{0}x{1}x{2}", round(dims[2]), round(dims[0]), round(dims[1]));
                         }
                         else {
+                            if (bref.Name.EndsWith("#")) {
+                                return String.Format("{0}x{2}x{1}", round(sortedDims[2]), round(sortedDims[0]), round(sortedDims[1]));
+                            }
                             return String.Format("{0}x{1}x{2}", round(sortedDims[2]), round(sortedDims[0]), round(sortedDims[1]));
                         }
                     }
