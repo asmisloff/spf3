@@ -148,8 +148,13 @@ namespace spf3
                 }
             }
             res["block_name"] = bref.Name;
-            if (res["header"] == "элементы конструкции" && !res["block_name"].StringValue.StartsWith("$")) {
-                res["dim"] = GetBoundingBox(bref);
+            if (res["header"] == "элементы конструкции") {
+                if (!res["block_name"].StringValue.StartsWith("$")) {
+                    res["dim"] = GetBoundingBox(bref);
+                }
+                else {
+
+                }
             }
             return res.Update();
         }
