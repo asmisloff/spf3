@@ -116,6 +116,7 @@ namespace spf3
             for (int i = 0; i < cnt; i++) {
                 var tag = tags[i];
                 var token = tokens[i];
+                if (tag == "name" && token.EndsWith("#")) token = token.TrimEnd('#');
                 if (this[tag] == "" || tag == "qty") {
                     this[tag] = token;
                 }

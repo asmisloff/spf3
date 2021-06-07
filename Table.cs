@@ -7,6 +7,7 @@ namespace spf3
         public new void Add(Record r)
         {
             int index = LastIndexOf(r);
+            if (r["art"].StringValue.StartsWith("*U")) return;
             if (index >= 0) {
                 try {
                     var cell = this[index];
